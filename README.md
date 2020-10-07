@@ -1,6 +1,6 @@
 # Polybus
 
-Polybus is a lightweight language-agnostic Event Bus for comunicating between microservice in asynchronous mode. Even though this repository is C# but the concept can be apply to other languages. Thus, enabled service communication written in different language.
+Polybus is a lightweight language-agnostic Event Bus for communication between microservice in asynchronous mode. Even though this repository is C# but the concept can be apply to other languages. Thus, enabled service communication written in different language.
 
 ## Development
 
@@ -18,7 +18,7 @@ dotnet build src/Polybus.sln
 
 ### Running tests
 
-First you need to start the required service with Docker Compose:
+First you need to start the required services with Docker Compose:
 
 ```sh
 docker-compose up -d
