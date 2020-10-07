@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <Description>Abstraction layer for Polybus</Description>
   </PropertyGroup>
 
   <ItemGroup>

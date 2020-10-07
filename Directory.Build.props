@@ -1,9 +1,14 @@
 <Project>
 
- <PropertyGroup>
-   <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
-   <Nullable>enable</Nullable>
-   <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
- </PropertyGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Authors>We Develop</Authors>
+    <Copyright>Copyright 2020 We Develop Co.,Ltd.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>event bus;message bus</PackageTags>
+    <RepositoryUrl>https://github.com/wedevth/polybus.git</RepositoryUrl>
+  </PropertyGroup>
 
 </Project>
