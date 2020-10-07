@@ -8,6 +8,7 @@ Polybus is a lightweight language-agnostic Event Bus for comunicating between mi
 
 - .NET Core 3.1
 - Protocol Buffer Compiler
+- Docker Compose
 
 ### Build
 
@@ -16,6 +17,14 @@ dotnet build src/Polybus.sln
 ```
 
 ### Running tests
+
+First you need to start the required service with Docker Compose:
+
+```sh
+docker-compose up -d
+```
+
+Then run all tests with:
 
 ```sh
 dotnet test src/Polybus.sln
