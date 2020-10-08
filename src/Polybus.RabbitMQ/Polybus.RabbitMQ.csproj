@@ -9,6 +9,7 @@
     <PackageReference Include="Google.Protobuf" Version="3.13.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="3.1.8" />
     <PackageReference Include="RabbitMQ.Client" Version="6.2.1" />
     <PackageReference Include="WeDev.Extensions.Threading" Version="1.0.0" />
   </ItemGroup>
