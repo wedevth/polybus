@@ -32,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IEventPublisher, EventPublisher>();
         }
 
-        public static void AddRabbitMQsubscriber(this IServiceCollection services)
+        public static void AddRabbitMQSubscriber(this IServiceCollection services)
         {
             services.AddHostedService<EventListener>();
         }
