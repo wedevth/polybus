@@ -46,7 +46,11 @@ services.AddRabbitMQPublisher();
 
 Consuming event is depend on message broker you are using. But usually you will need to construct the class that implemented `IEventListener` (e.g. `Polybus.RabbitMQ.EventListener` for RabbitMQ) and passed the implementation of `IEventConsumer<T>` to it. Once everything are ready you can invoke `StartAsync` on the event listener to start consuming.
 
-Usually there will be extensions method for Microsoft Dependency Injection like publishing event for each implementation.
+Usually there will be extension methods for Microsoft Dependency Injection for each implementation to register `IEventListener` like publishing event. There is also extension methods to register consumers too. e.g.:
+
+```csharp
+services.AddEventConsumer<FooConsumer>();
+```
 
 ## Development
 
