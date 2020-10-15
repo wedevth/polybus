@@ -185,7 +185,7 @@ namespace Polybus.RabbitMQ.Tests
                 Times.Never());
         }
 
-        [Fact(Skip = "IModel.CallbackException does not triggered for some reasons.")]
+        [Fact(Skip = "There is a bug in rabbitmq-dotnet-client: https://github.com/rabbitmq/rabbitmq-dotnet-client/pull/946")]
         public async Task StartAsync_ExceptionInChannelCallback_ShouldStopApplication()
         {
             // Arrange.
