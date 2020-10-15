@@ -7,7 +7,7 @@
     <Authors>We Develop</Authors>
     <Copyright>Copyright 2020 We Develop Co.,Ltd.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageTags>event bus;message bus</PackageTags>
+    <PackageTags>event-bus;message-bus</PackageTags>
     <RepositoryUrl>https://github.com/wedevth/polybus.git</RepositoryUrl>
   </PropertyGroup>
 
