@@ -34,6 +34,10 @@ namespace Polybus.RabbitMQ
             IBasicProperties properties,
             ReadOnlyMemory<byte> body)
         {
+            // FIXME: This is a workaround until this PR is released:
+            // https://github.com/rabbitmq/rabbitmq-dotnet-client/pull/946
+            await Task.Yield();
+
             // Sanity checks.
             if (!properties.IsTypePresent() || !properties.IsContentTypePresent())
             {
