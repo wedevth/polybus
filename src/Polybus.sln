@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polybus.RabbitMQ.RedisCoord
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polybus.RabbitMQ.RedisCoordinator.Tests", "Polybus.RabbitMQ.RedisCoordinator.Tests\Polybus.RabbitMQ.RedisCoordinator.Tests.csproj", "{3BCF7FA2-9EBA-4933-A75F-66D57C5BE061}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polybus.Serialization", "Polybus.Serialization\Polybus.Serialization.csproj", "{7357D552-DFC7-4014-9197-DE9469BC743A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polybus.Serialization.Tests", "Polybus.Serialization.Tests\Polybus.Serialization.Tests.csproj", "{8C0083D6-7EFE-41D5-8C33-3146942F5283}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,5 +104,29 @@ Global
 		{3BCF7FA2-9EBA-4933-A75F-66D57C5BE061}.Release|x64.Build.0 = Release|Any CPU
 		{3BCF7FA2-9EBA-4933-A75F-66D57C5BE061}.Release|x86.ActiveCfg = Release|Any CPU
 		{3BCF7FA2-9EBA-4933-A75F-66D57C5BE061}.Release|x86.Build.0 = Release|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Debug|x64.Build.0 = Debug|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Debug|x86.Build.0 = Debug|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Release|x64.ActiveCfg = Release|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Release|x64.Build.0 = Release|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Release|x86.ActiveCfg = Release|Any CPU
+		{7357D552-DFC7-4014-9197-DE9469BC743A}.Release|x86.Build.0 = Release|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Debug|x64.Build.0 = Debug|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Debug|x86.Build.0 = Debug|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Release|x64.ActiveCfg = Release|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Release|x64.Build.0 = Release|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Release|x86.ActiveCfg = Release|Any CPU
+		{8C0083D6-7EFE-41D5-8C33-3146942F5283}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
