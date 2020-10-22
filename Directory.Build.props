@@ -4,6 +4,8 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>1591</NoWarn>
     <Authors>We Develop</Authors>
     <Copyright>Copyright 2020 We Develop Co.,Ltd.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

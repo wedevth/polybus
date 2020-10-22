@@ -10,6 +10,12 @@ namespace Polybus.Serialization
         /// <summary>
         /// Deserialize <see cref="ByteString"/> that contains a variant 1 UUID to <see cref="Guid"/>.
         /// </summary>
+        /// <param name="data">
+        /// Raw data of variant 1 UUID.
+        /// </param>
+        /// <returns>
+        /// The native <see cref="Guid"/> that represents the same value as <paramref name="data"/>.
+        /// </returns>
         /// <exception cref="EventSerializationException">
         /// <paramref name="data"/> contains invalid data.
         /// </exception>
@@ -48,6 +54,12 @@ namespace Polybus.Serialization
         /// <summary>
         /// Serialize a <see cref="Guid"/> to <see cref="ByteString"/> as a variant 1 UUID.
         /// </summary>
+        /// <param name="value">
+        /// The <see cref="Guid"/> to serialize to variant 1 UUID.
+        /// </param>
+        /// <returns>
+        /// <see cref="ByteString"/> that contains the raw data of variant 1 UUID.
+        /// </returns>
         /// <remarks>
         /// This method produce a different result from <c>ByteString.CopyFrom(guid.ToByteArray())</c>, which is not
         /// correct due to incompatible endianness.
