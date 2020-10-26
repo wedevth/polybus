@@ -20,11 +20,28 @@ namespace Polybus.Serialization.Tests
         private static readonly Guid SampleGuid = Guid.Parse("afc2b8be-250d-4d56-9641-a58198a938b6");
 
         [Fact]
+        public void DeserializeGuid_WithNilUUID_ShouldReturnEmptyGuid()
+        {
+            var result = EventSerializer.DeserializeGuid(ByteString.CopyFrom(new byte[16]));
+
+            Assert.Equal(Guid.Empty, result);
+        }
+
+        [Fact]
         public void DeserializeGuid_WithVariant1UUID_ShouldReturnCorrectValue()
         {
             var result = EventSerializer.DeserializeGuid(ByteString.CopyFrom(SampleUuid));
 
             Assert.Equal("afc2b8be-250d-4d56-9641-a58198a938b6", result.ToString());
+        }
+
+        [Fact]
+        public void Serialize_WithEmptyGuid_ShouldReturnNilUUID()
+        {
+            var result = EventSerializer.Serialize(Guid.Empty);
+
+            Assert.Equal(16, result.Length);
+            Assert.All(result, b => Assert.Equal(0, b));
         }
 
         [Fact]
@@ -37,7 +54,7 @@ namespace Polybus.Serialization.Tests
         }
 
         [Fact]
-        public void Serialize_WithGuid_ShouldReturnVariant1UUID()
+        public void Serialize_WithNonEmptyGuid_ShouldReturnVariant1UUID()
         {
             var result = EventSerializer.Serialize(SampleGuid);
 

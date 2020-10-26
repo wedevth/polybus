@@ -3,10 +3,21 @@ namespace Polybus.Serialization
     using System;
     using System.Buffers;
     using System.Buffers.Binary;
+    using System.Linq;
     using Google.Protobuf;
 
     public static class EventSerializer
     {
+        private static readonly ReadOnlyMemory<byte> NilUUID = new byte[]
+        {
+            0x00, 0x00, 0x00, 0x00,             // time_low
+            0x00, 0x00,                         // time_mid
+            0x00, 0x00,                         // time_hi_and_version
+            0x00,                               // clock_seq_hi_and_reserved (100xxxxx)
+            0x00,                               // clock_seq_low
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // node
+        };
+
         /// <summary>
         /// Deserialize <see cref="ByteString"/> that contains a variant 1 UUID to <see cref="Guid"/>.
         /// </summary>
@@ -28,6 +39,11 @@ namespace Polybus.Serialization
             if (data.Length != 16)
             {
                 throw new EventSerializationException("The data must be exactly 16 bytes.");
+            }
+
+            if (data.Span.SequenceEqual(NilUUID.Span))
+            {
+                return Guid.Empty;
             }
 
             if (!IsVariant1UUID(data.Span))
@@ -66,6 +82,11 @@ namespace Polybus.Serialization
         /// </remarks>
         public static ByteString Serialize(Guid value)
         {
+            if (value == Guid.Empty)
+            {
+                return ByteString.CopyFrom(NilUUID.Span);
+            }
+
             // Guid in .NET is variant 1 UUID with time_low, time_mid and time_hi_and_version in little endian, which is
             // incompatible with UUID on the other platforms. So we need to convert those fields to big endian.
             using var buffer = MemoryPool<byte>.Shared.Rent(16);
