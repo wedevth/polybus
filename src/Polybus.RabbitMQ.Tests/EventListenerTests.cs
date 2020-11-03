@@ -22,7 +22,8 @@ namespace Polybus.RabbitMQ.Tests
         private readonly Mock<ILogger> logger;
         private readonly Mock<ILoggerFactory> loggerFactory;
         private readonly Mock<IQueueCoordinator> coordinator;
-        private readonly Mock<IEventConsumer<Person>> consumer;
+        private readonly Mock<IEventConsumer<Person>> consumer1;
+        private readonly Mock<IEventConsumer<AddressBook>> consumer2;
         private readonly EventListener subject;
 
         public EventListenerTests()
@@ -39,14 +40,15 @@ namespace Polybus.RabbitMQ.Tests
                 this.loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(this.logger.Object);
 
                 this.coordinator = new Mock<IQueueCoordinator>();
-                this.consumer = new Mock<IEventConsumer<Person>>();
+                this.consumer1 = new Mock<IEventConsumer<Person>>();
+                this.consumer2 = this.consumer1.As<IEventConsumer<AddressBook>>();
                 this.subject = new EventListener(
                     new OptionsWrapper<EventBusOptions>(this.Options),
                     this.Connection,
                     this.host.Object,
                     this.loggerFactory.Object,
                     this.coordinator.Object,
-                    new[] { this.consumer.Object });
+                    new[] { this.consumer1.Object });
             }
             catch
             {
@@ -107,27 +109,42 @@ namespace Polybus.RabbitMQ.Tests
         public async Task StartAsync_WhenReceivedValidEvent_ShouldInvokeCorrespondingConsumer()
         {
             // Arrange.
-            using var received = new SemaphoreSlim(0);
-            var @event = new Person()
+            using var remaining = new CountdownEvent(2);
+            var ex = new NotSupportedException();
+            var event1 = new Person()
             {
-                Id = ByteString.CopyFrom(Guid.NewGuid().ToByteArray()),
+                Id = 1,
                 Name = "John Doe",
                 LastUpdated = Timestamp.FromDateTime(DateTime.UtcNow),
             };
 
-            @event.Emails.Add("jd@example.com");
-            @event.Phones.Add(new PhoneNumber()
+            event1.Emails.Add("jd@example.com");
+            event1.Phones.Add(new PhoneNumber()
             {
                 Number = "+66123456789",
                 Type = PhoneType.Home,
             });
 
-            this.consumer
-                .Setup(c => c.ConsumeEventAsync(It.IsAny<Person>(), It.IsAny<CancellationToken>()))
-                .Returns<Person, CancellationToken>((p, c) =>
+            var event2 = new AddressBook();
+
+            event2.People.Add(event1);
+
+            this.consumer1
+                .SetupSequence(c => c.ConsumeEventAsync(It.IsAny<Person>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(ex)
+                .ReturnsAsync(() =>
                 {
-                    received.Release();
-                    return new ValueTask(Task.CompletedTask);
+                    remaining.Signal();
+                    return true;
+                });
+
+            this.consumer2
+                .SetupSequence(c => c.ConsumeEventAsync(It.IsAny<AddressBook>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false)
+                .ReturnsAsync(() =>
+                {
+                    remaining.Signal();
+                    return true;
                 });
 
             // Act.
@@ -137,9 +154,10 @@ namespace Polybus.RabbitMQ.Tests
 
             try
             {
-                this.PublishEvent(@event);
+                this.PublishEvent(event1);
+                this.PublishEvent(event2);
 
-                result = await received.WaitAsync(1000 * 5);
+                result = remaining.Wait(1000 * 5);
             }
             finally
             {
@@ -154,22 +172,20 @@ namespace Polybus.RabbitMQ.Tests
                 Times.Once());
 
             this.coordinator.Verify(
-                c => c.RegisterSupportedEventAsync(
-                    It.IsNotIn(Person.Descriptor.FullName),
-                    It.IsAny<CancellationToken>()),
-                Times.Never());
+                c => c.RegisterSupportedEventAsync(AddressBook.Descriptor.FullName, default),
+                Times.Once());
 
             this.coordinator.Verify(
                 c => c.IsEventSupportedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
                 Times.Never());
 
-            this.consumer.Verify(
-                c => c.ConsumeEventAsync(@event, default),
-                Times.Once());
+            this.consumer1.Verify(
+                c => c.ConsumeEventAsync(event1, default),
+                Times.Exactly(2));
 
-            this.consumer.Verify(
-                c => c.ConsumeEventAsync(It.IsNotIn(@event), It.IsAny<CancellationToken>()),
-                Times.Never());
+            this.consumer2.Verify(
+                c => c.ConsumeEventAsync(event2, default),
+                Times.Exactly(2));
 
             this.host.Verify(
                 h => h.StopApplication(),
@@ -177,9 +193,18 @@ namespace Polybus.RabbitMQ.Tests
 
             this.logger.Verify(
                 l => l.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Unhandled exception occurred while consuming event {Person.Descriptor.FullName}."),
+                    ex,
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+                Times.Once());
+
+            this.logger.Verify(
+                l => l.Log(
                     It.IsNotIn(LogLevel.Information),
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => true),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() != $"Unhandled exception occurred while consuming event {Person.Descriptor.FullName}."),
                     It.IsAny<Exception>(),
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
                 Times.Never());
@@ -190,7 +215,7 @@ namespace Polybus.RabbitMQ.Tests
         {
             // Arrange.
             using var stopped = new SemaphoreSlim(0);
-            var @event = new AddressBook();
+            var @event = new StreetAddress();
             var ex = new Exception();
 
             this.coordinator
@@ -221,28 +246,12 @@ namespace Polybus.RabbitMQ.Tests
             Assert.True(result);
 
             this.coordinator.Verify(
-                c => c.RegisterSupportedEventAsync(Person.Descriptor.FullName, default),
+                c => c.RegisterSupportedEventAsync(StreetAddress.Descriptor.FullName, It.IsAny<CancellationToken>()),
+                Times.Never());
+
+            this.coordinator.Verify(
+                c => c.IsEventSupportedAsync(StreetAddress.Descriptor.FullName, default),
                 Times.Once());
-
-            this.coordinator.Verify(
-                c => c.RegisterSupportedEventAsync(
-                    It.IsNotIn(Person.Descriptor.FullName),
-                    It.IsAny<CancellationToken>()),
-                Times.Never());
-
-            this.coordinator.Verify(
-                c => c.IsEventSupportedAsync(AddressBook.Descriptor.FullName, default),
-                Times.Once());
-
-            this.coordinator.Verify(
-                c => c.IsEventSupportedAsync(
-                    It.IsNotIn(AddressBook.Descriptor.FullName),
-                    It.IsAny<CancellationToken>()),
-                Times.Never());
-
-            this.consumer.Verify(
-                c => c.ConsumeEventAsync(It.IsAny<Person>(), It.IsAny<CancellationToken>()),
-                Times.Never());
 
             this.host.Verify(
                 h => h.StopApplication(),

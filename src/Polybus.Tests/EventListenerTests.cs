@@ -31,11 +31,11 @@ namespace Polybus.Tests
 
             this.consumer.StubbedConsumeAddressBookAsync
                 .Setup(f => f(It.IsAny<AddressBook>(), It.IsAny<CancellationToken>()))
-                .Returns(new ValueTask(addressBookConsuming.Task));
+                .Returns(new ValueTask<bool>(addressBookConsuming.Task));
 
             this.consumer.StubbedConsumePersonAsync
                 .Setup(f => f(It.IsAny<Person>(), It.IsAny<CancellationToken>()))
-                .Returns(new ValueTask(personConsuming.Task));
+                .Returns(new ValueTask<bool>(personConsuming.Task));
 
             // Act.
             this.subject.InitializeConsumerTable(new[] { this.consumer }, callback.Object);

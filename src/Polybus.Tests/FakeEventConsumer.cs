@@ -10,13 +10,13 @@ namespace Polybus.Tests
     {
         public FakeEventConsumer()
         {
-            this.StubbedConsumeAddressBookAsync = new Mock<Func<AddressBook, CancellationToken, ValueTask>>();
-            this.StubbedConsumePersonAsync = new Mock<Func<Person, CancellationToken, ValueTask>>();
+            this.StubbedConsumeAddressBookAsync = new Mock<Func<AddressBook, CancellationToken, ValueTask<bool>>>();
+            this.StubbedConsumePersonAsync = new Mock<Func<Person, CancellationToken, ValueTask<bool>>>();
         }
 
-        public Mock<Func<AddressBook, CancellationToken, ValueTask>> StubbedConsumeAddressBookAsync { get; }
+        public Mock<Func<AddressBook, CancellationToken, ValueTask<bool>>> StubbedConsumeAddressBookAsync { get; }
 
-        public Mock<Func<Person, CancellationToken, ValueTask>> StubbedConsumePersonAsync { get; }
+        public Mock<Func<Person, CancellationToken, ValueTask<bool>>> StubbedConsumePersonAsync { get; }
 
         public void ClearStubbedInvocations()
         {
@@ -24,12 +24,12 @@ namespace Polybus.Tests
             this.StubbedConsumePersonAsync.Invocations.Clear();
         }
 
-        public ValueTask ConsumeEventAsync(AddressBook @event, CancellationToken cancellationToken = default)
+        public ValueTask<bool> ConsumeEventAsync(AddressBook @event, CancellationToken cancellationToken = default)
         {
             return this.StubbedConsumeAddressBookAsync.Object(@event, cancellationToken);
         }
 
-        public ValueTask ConsumeEventAsync(Person @event, CancellationToken cancellationToken = default)
+        public ValueTask<bool> ConsumeEventAsync(Person @event, CancellationToken cancellationToken = default)
         {
             return this.StubbedConsumePersonAsync.Object(@event, cancellationToken);
         }

@@ -16,9 +16,10 @@ namespace Polybus.RabbitMQ.Tests
 
     public sealed class EventPublisherTests : RabbitMQTests
     {
+        private const int PersonId = 211;
+
         private readonly ManualResetEventSlim received;
         private readonly Mock<ILogger<EventPublisher>> logger;
-        private readonly Guid personId;
         private readonly IModel consumer;
         private readonly EventPublisher subject;
         private CountdownEvent? persons;
@@ -30,7 +31,6 @@ namespace Polybus.RabbitMQ.Tests
             {
                 this.received = new ManualResetEventSlim();
                 this.logger = new Mock<ILogger<EventPublisher>>();
-                this.personId = Guid.NewGuid();
 
                 this.consumer = this.CreateConsumer();
                 this.subject = new EventPublisher(
@@ -161,7 +161,7 @@ namespace Polybus.RabbitMQ.Tests
                 {
                     var @event = new Person()
                     {
-                        Id = ByteString.CopyFrom(this.personId.ToByteArray()),
+                        Id = PersonId,
                     };
 
                     await this.subject.PublishAsync(@event);
@@ -218,7 +218,7 @@ namespace Polybus.RabbitMQ.Tests
 
                 @event.People.Add(new Person()
                 {
-                    Id = ByteString.CopyFrom(this.personId.ToByteArray()),
+                    Id = PersonId,
                 });
 
                 await this.subject.PublishAsync(@event, cancellationToken);
@@ -236,7 +236,7 @@ namespace Polybus.RabbitMQ.Tests
             {
                 var @event = Person.Parser.ParseFrom(body);
 
-                if (new Guid(@event.Id.ToByteArray()) == this.personId)
+                if (@event.Id == PersonId)
                 {
                     this.persons?.Signal();
                 }
@@ -245,7 +245,7 @@ namespace Polybus.RabbitMQ.Tests
             {
                 var @event = AddressBook.Parser.ParseFrom(body);
 
-                if (@event.People.Count == 1 && new Guid(@event.People[0].Id.ToByteArray()) == this.personId)
+                if (@event.People.Count == 1 && @event.People[0].Id == PersonId)
                 {
                     this.addressBooks?.Signal();
                 }

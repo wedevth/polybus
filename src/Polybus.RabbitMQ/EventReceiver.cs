@@ -71,15 +71,19 @@ namespace Polybus.RabbitMQ
 
             // Invoke consumer.
             var @event = consumer.EventParser.ParseFrom(new ReadOnlySequence<byte>(body));
+            bool? success = null;
 
             try
             {
-                await consumer.ConsumeExecutor(@event);
+                success = await consumer.ConsumeExecutor(@event);
             }
             catch (Exception ex)
             {
                 this.logger.LogError(ex, "Unhandled exception occurred while consuming event {EventType}.", eventType);
+            }
 
+            if (success == null || !success.Value)
+            {
                 // Requeue to let the other instance handle this event instead.
                 this.Model.BasicReject(deliveryTag, true);
                 return;
