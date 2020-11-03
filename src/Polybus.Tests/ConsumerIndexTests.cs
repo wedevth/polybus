@@ -1,6 +1,6 @@
 namespace Polybus.Tests
 {
-    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -8,22 +8,25 @@ namespace Polybus.Tests
     using Polybus.Example;
     using Xunit;
 
-    public sealed class EventListenerTests
+    public sealed class ConsumerIndexTests
     {
-        private readonly FakeEventConsumer consumer;
-        private readonly FakeEventListener subject;
+        public static readonly IEnumerable<object[]> SupportedEvents = FakeEventConsumer.SupportedEvents
+            .Select(e => new object[] { e })
+            .ToList();
 
-        public EventListenerTests()
+        private readonly FakeEventConsumer consumer;
+        private readonly ConsumerIndex subject;
+
+        public ConsumerIndexTests()
         {
             this.consumer = new FakeEventConsumer();
-            this.subject = new FakeEventListener();
+            this.subject = new ConsumerIndex(new[] { this.consumer });
         }
 
         [Fact]
-        public void InitializeConsumerTable_WithNonEmptyConsumers_ShouldInvokeCallbackWithCorrectArgument()
+        public void Constructor_WithNonEmptyConsumers_ShouldInitializeCorrectly()
         {
             // Arrange.
-            var callback = new Mock<Action<ConsumerDescriptor>>();
             var person = new Person();
             var addressBook = new AddressBook();
             var personConsuming = new TaskCompletionSource<bool>();
@@ -37,21 +40,11 @@ namespace Polybus.Tests
                 .Setup(f => f(It.IsAny<Person>(), It.IsAny<CancellationToken>()))
                 .Returns(new ValueTask<bool>(personConsuming.Task));
 
-            // Act.
-            this.subject.InitializeConsumerTable(new[] { this.consumer }, callback.Object);
-
             // Assert.
-            callback.Verify(
-                f => f(It.Is<ConsumerDescriptor>(a => ReferenceEquals(a.Instance, this.consumer))),
-                Times.Exactly(2));
+            Assert.Equal(2, this.subject.Count);
 
-            var personConsumer = callback.Invocations
-                .Select(i => (ConsumerDescriptor)i.Arguments[0])
-                .Single(d => d.EventDescriptor.ClrType == typeof(Person));
-
-            var addressBookConsumer = callback.Invocations
-                .Select(i => (ConsumerDescriptor)i.Arguments[0])
-                .Single(d => d.EventDescriptor.ClrType == typeof(AddressBook));
+            var personConsumer = Assert.Contains(Person.Descriptor.FullName, this.subject);
+            var addressBookConsumer = Assert.Contains(AddressBook.Descriptor.FullName, this.subject);
 
             Assert.Same(Person.Descriptor, personConsumer.EventDescriptor);
             Assert.Same(Person.Parser, personConsumer.EventParser);
@@ -89,6 +82,23 @@ namespace Polybus.Tests
 
                 Assert.Same(result.AsTask(), addressBookConsuming.Task);
             }
+        }
+
+        [Theory]
+        [MemberData(nameof(SupportedEvents))]
+        public void Item_GetWithExistenceKey_ShouldReturnCorrespondingValue(string key)
+        {
+            var value = this.subject[key];
+
+            Assert.Equal(key, value.EventDescriptor.FullName);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("abc")]
+        public void Item_GetWithNonExistenceKey_ShouldThrow(string key)
+        {
+            Assert.Throws<KeyNotFoundException>(() => this.subject[key]);
         }
     }
 }

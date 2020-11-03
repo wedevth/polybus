@@ -1,6 +1,7 @@
 namespace Polybus.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Moq;
@@ -8,6 +9,12 @@ namespace Polybus.Tests
 
     sealed class FakeEventConsumer : IEventConsumer<AddressBook>, IEventConsumer<Person>
     {
+        public static readonly IEnumerable<string> SupportedEvents = new[]
+        {
+            AddressBook.Descriptor.FullName,
+            Person.Descriptor.FullName,
+        };
+
         public FakeEventConsumer()
         {
             this.StubbedConsumeAddressBookAsync = new Mock<Func<AddressBook, CancellationToken, ValueTask<bool>>>();

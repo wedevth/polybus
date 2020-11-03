@@ -45,10 +45,10 @@ namespace Polybus.RabbitMQ.Tests
                 this.subject = new EventListener(
                     new OptionsWrapper<EventBusOptions>(this.Options),
                     this.Connection,
+                    new ConsumerIndex(new[] { this.consumer1.Object }),
                     this.host.Object,
                     this.loggerFactory.Object,
-                    this.coordinator.Object,
-                    new[] { this.consumer1.Object });
+                    this.coordinator.Object);
             }
             catch
             {

@@ -13,11 +13,11 @@ namespace Polybus.RabbitMQ
 
     public sealed class EventListener : EventBus, IEventListener
     {
+        private readonly ConsumerIndex consumers;
         private readonly IHostApplicationLifetime host;
         private readonly ILoggerFactory loggerFactory;
         private readonly IQueueCoordinator coordinator;
         private readonly ILogger logger;
-        private readonly Dictionary<string, ConsumerDescriptor> consumers;
         private TaskCompletionSource<bool>? stopped;
         private IModel? channel;
         private EventReceiver? receiver;
@@ -26,22 +26,17 @@ namespace Polybus.RabbitMQ
         public EventListener(
             IOptions<EventBusOptions> options,
             IConnection connection,
+            ConsumerIndex consumers,
             IHostApplicationLifetime host,
             ILoggerFactory loggerFactory,
-            IQueueCoordinator coordinator,
-            IEnumerable<IEventConsumer> consumers)
+            IQueueCoordinator coordinator)
             : base(options, connection)
         {
+            this.consumers = consumers;
             this.host = host;
             this.loggerFactory = loggerFactory;
             this.coordinator = coordinator;
             this.logger = loggerFactory.CreateLogger(this.GetType());
-            this.consumers = new Dictionary<string, ConsumerDescriptor>();
-
-            IEventListener.InitializeConsumerTable(consumers, d =>
-            {
-                this.consumers.Add(d.EventDescriptor.FullName, d);
-            });
 
             if (this.consumers.Count == 0)
             {
