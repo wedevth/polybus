@@ -193,21 +193,66 @@ namespace Polybus.RabbitMQ.Tests
 
             this.logger.Verify(
                 l => l.Log(
+                    LogLevel.Information,
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Consuming {Person.Descriptor.FullName}: {event1}"),
+                    null,
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+                Times.Exactly(2));
+
+            this.logger.Verify(
+                l => l.Log(
+                    LogLevel.Information,
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Consuming {AddressBook.Descriptor.FullName}: {event2}"),
+                    null,
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+                Times.Exactly(2));
+
+            this.logger.Verify(
+                l => l.Log(
                     LogLevel.Error,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Unhandled exception occurred while consuming event {Person.Descriptor.FullName}."),
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Unhandled exception occurred while consuming {Person.Descriptor.FullName}."),
                     ex,
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
                 Times.Once());
 
             this.logger.Verify(
                 l => l.Log(
-                    It.IsNotIn(LogLevel.Information),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString() != $"Unhandled exception occurred while consuming event {Person.Descriptor.FullName}."),
-                    It.IsAny<Exception>(),
+                    LogLevel.Information,
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Unsuccessful consuming {Person.Descriptor.FullName}, returning event to the queue to let other instance handle it."),
+                    null,
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
-                Times.Never());
+                Times.Once());
+
+            this.logger.Verify(
+                l => l.Log(
+                    LogLevel.Information,
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Unsuccessful consuming {AddressBook.Descriptor.FullName}, returning event to the queue to let other instance handle it."),
+                    null,
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+                Times.Once());
+
+            this.logger.Verify(
+                l => l.Log(
+                    LogLevel.Information,
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Successful consuming {Person.Descriptor.FullName}."),
+                    null,
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+                Times.Once());
+
+            this.logger.Verify(
+                l => l.Log(
+                    LogLevel.Information,
+                    0,
+                    It.Is<It.IsAnyType>((v, t) => v.ToString() == $"Successful consuming {AddressBook.Descriptor.FullName}."),
+                    null,
+                    It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),
+                Times.Once());
         }
 
         [Fact]
@@ -260,7 +305,7 @@ namespace Polybus.RabbitMQ.Tests
             this.logger.Verify(
                 l => l.Log(
                     LogLevel.Critical,
-                    It.IsAny<EventId>(),
+                    0,
                     It.Is<It.IsAnyType>((v, t) => v.ToString() == "Unhandled exception occurred in the channel callback."),
                     ex,
                     It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)),

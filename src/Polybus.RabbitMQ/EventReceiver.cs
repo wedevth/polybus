@@ -55,6 +55,10 @@ namespace Polybus.RabbitMQ
             if (!string.Equals(contentType, "application/x-protobuf", StringComparison.OrdinalIgnoreCase))
             {
                 // We want to requeue because the other instance with newer version may supports this new content type.
+                this.logger.LogInformation(
+                    "Unknown content type {ContentType} for message {Message}.",
+                    contentType,
+                    eventType);
                 this.Model.BasicReject(deliveryTag, true);
                 return;
             }
@@ -65,12 +69,28 @@ namespace Polybus.RabbitMQ
                 // We need to requeue if other instance can handle this event. This can happen if the newer version of
                 // the service is deployed alongside old version.
                 var requeue = await this.coordinator.IsEventSupportedAsync(eventType);
-                this.Model.BasicReject(deliveryTag, requeue);
+
+                if (requeue)
+                {
+                    this.logger.LogInformation(
+                        "Returning {EventType} to the queue due to we cannot handle it but the other instance can.",
+                        eventType);
+                    this.Model.BasicReject(deliveryTag, true);
+                }
+                else
+                {
+                    this.logger.LogInformation("Discarding {EventType} due to we cannot handle it.", eventType);
+                }
+
                 return;
             }
 
-            // Invoke consumer.
+            // Deserialize event.
             var @event = consumer.EventParser.ParseFrom(new ReadOnlySequence<byte>(body));
+
+            this.logger.LogInformation("Consuming {EventType}: {EventData}", eventType, @event);
+
+            // Invoke consumer.
             bool? success = null;
 
             try
@@ -79,16 +99,20 @@ namespace Polybus.RabbitMQ
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Unhandled exception occurred while consuming event {EventType}.", eventType);
+                this.logger.LogError(ex, "Unhandled exception occurred while consuming {EventType}.", eventType);
             }
 
             if (success == null || !success.Value)
             {
                 // Requeue to let the other instance handle this event instead.
+                this.logger.LogInformation(
+                    "Unsuccessful consuming {EventType}, returning event to the queue to let other instance handle it.",
+                    eventType);
                 this.Model.BasicReject(deliveryTag, true);
                 return;
             }
 
+            this.logger.LogInformation("Successful consuming {EventType}.", eventType);
             this.Model.BasicAck(deliveryTag, false);
         }
     }
