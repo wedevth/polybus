@@ -34,6 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static void AddRabbitMQSubscriber(this IServiceCollection services)
         {
+            services.TryAddSingleton<IConsumerIndex, ConsumerIndex>();
             services.AddHostedService<EventListener>();
         }
     }

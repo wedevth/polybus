@@ -19,6 +19,18 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddSingleton<IEventConsumer, T>();
         }
 
+        public static void AddEventConsumer(this IServiceCollection services, IEventConsumer consumer)
+        {
+            if (!IsValidConsumer(consumer.GetType()))
+            {
+                throw new ArgumentException(
+                    $"{consumer.GetType()} must also implement {typeof(IEventConsumer<>)}.",
+                    nameof(consumer));
+            }
+
+            services.AddSingleton(consumer);
+        }
+
         private static bool IsValidConsumer(Type consumer)
         {
             return consumer

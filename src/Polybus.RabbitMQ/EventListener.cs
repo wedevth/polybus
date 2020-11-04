@@ -13,7 +13,7 @@ namespace Polybus.RabbitMQ
 
     public sealed class EventListener : EventBus, IEventListener
     {
-        private readonly ConsumerIndex consumers;
+        private readonly IConsumerIndex consumers;
         private readonly IHostApplicationLifetime host;
         private readonly ILoggerFactory loggerFactory;
         private readonly IQueueCoordinator coordinator;
@@ -26,7 +26,7 @@ namespace Polybus.RabbitMQ
         public EventListener(
             IOptions<EventBusOptions> options,
             IConnection connection,
-            ConsumerIndex consumers,
+            IConsumerIndex consumers,
             IHostApplicationLifetime host,
             ILoggerFactory loggerFactory,
             IQueueCoordinator coordinator)
